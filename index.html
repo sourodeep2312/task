@@ -197,7 +197,14 @@ tr {
     </div>
     </main>
     <script>
-        const taskInput = document.getElementById('taskInput');
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker Registered!'))
+      .catch(err => console.error('SW registration failed:', err));
+  }
+
+        
+const taskInput = document.getElementById('taskInput');
 const saveButton = document.getElementById('saveTaskButton');
 const clearButton = document.getElementById('clearTasks');
 const tableBody = document.getElementById('taskTableBody');
