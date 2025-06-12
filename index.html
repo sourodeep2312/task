@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Logger</title>
+    <style>
+        *{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0fd5f73;
+    color: #0a0000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+h1{
+    font-size:2rem;
+    font-weight: 650;
+    margin: 1rem 0;
+
+}
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    text-align: center;
+}
+
+main  {
+    background-color: #c4c4be25;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    height: 90%;
+    max-width: 800px;
+    padding:2rem;
+    border-radius:15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    margin: 20px auto;
+}
+.log {
+    width: 100%;
+    max-height: 80vh;
+    margin-top: 20px;
+
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1rem;
+    background-color: #f9f9f9;  
+    border: 1px solid #000000;
+    table-layout: fixed;
+       
+    overflow: hidden;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+ 
+th, td {
+    border: 1px solid #000000;
+    padding: 8px;
+    text-align: center;
+     background-color: #c4cfda;
+    color: rgb(31, 35, 240);
+    font-weight: 600;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #000000;
+    border-radius: 4px;
+}
+
+
+button {
+    padding: 5px 5px;
+    background-color:rgb(255, 255, 255);
+    border: 1px solid #000000;
+    border-radius: 10px;
+    font: 600 1 rem 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:active {
+    background-color: #eceed9b4;
+    
+}
+
+button:hover {
+    background-color: #eceed9b4;
+    
+}
+
+.enterButton, .downButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+
+
+.entry {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+tr {
+    border: 1px solid #000000;
+    padding: 8px;
+    text-align: right
+}
+
+@media (max-width: 400px) {
+    main {
+        width: 95%;
+        padding: 10px;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    h2 {
+        font-size: 1.2rem;
+    }
+    table, th, td {
+        font-size: 0.7rem;
+    }
+    button {
+        padding: 5px 5px;
+        font-size: 0.5rem;
+    }
+    
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Daily Task Log 	📅</h1>
+    </header>
+    <main>
+        <div class="entry" id="taskEntry">
+            <h2>Log Today's Tasks 📝</h2>
+            
+        <input type="text" id="taskInput" placeholder="Enter your task here...">
+        </div>
+        <div class="enterButtons">
+            <button id="saveTaskButton">Save Task</button>
+        
+        </div>
+    <div class="log" id="taskLog">
+        <table>
+            <thead>
+                <tr>
+                    <th class="task-no" style="width:40px; text-align: center;">No.</th>
+                    <th style="width:60px;"> Date</th>
+                    <th style="width:60px;">Time</th>
+                    <th>Task</th>
+                    <th class="task-no" style="width:50px; text-align: center;"></th>
+                
+                            
+                </tr>             
+            </thead>
+            <tbody id="taskTableBody">
+                <!-- Task entries will be dynamically added here -->
+            <tr id="taskList"></tr>
+            
+            
+        </table>
+        <div class="downButtons">
+        <button id="clearTasks">Clear Tasks</button>
+    
+        </div>
+    </div>
+    </main>
+    <script>
+        const taskInput = document.getElementById('taskInput');
+const saveButton = document.getElementById('saveTaskButton');
+const clearButton = document.getElementById('clearTasks');
+const tableBody = document.getElementById('taskTableBody');
+
+
+window.onload = () => {
+        let taskList = JSON.parse(localStorage.getItem('taskList')) || [];
+    // Check if taskList is an array
+    if (Array.isArray(taskList)) {
+        taskList.forEach((tasks, index) => addTaskToTable(tasks, index));
+    } else {
+        // If it's not an array, initialize it as an empty array
+        taskList = [];
+    }
+};
+
+saveButton.addEventListener("click", () =>
+{
+    const taskText = taskInput.value.trim();
+    if (taskText === '') return;
+    const now = new Date();
+    const date = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+    const time = `${(now.getHours() % 12 || 12).toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} ${now.getHours() >= 12 ? 'PM' : 'AM'}`;  
+    const task = 
+        {
+        text: taskText,
+        date: date,
+        time: time,
+        status: "pending",
+        };
+        let taskList = JSON.parse(localStorage.getItem('taskList')) || [];
+
+    // Check if taskList is an array, if not, initialize it as an empty array
+    if (!Array.isArray(taskList)) {
+        taskList = [];
+    }
+
+    taskList.push(task);
+    localStorage.setItem('taskList', JSON.stringify(taskList));
+
+    // Fix: task.Length should be taskList.length for the index
+    addTaskToTable(task, taskList.length - 1);
+    taskInput.value = '';
+});
+
+clearButton.addEventListener('click', () => {
+    if (confirm('Are you sure you want to delete all tasks?')) {
+        localStorage.removeItem('taskList');
+        tableBody.innerHTML = '';
+    }
+});
+
+
+function addTaskToTable(task, index) {
+    const row = document.createElement('tr');
+
+    const idCell = document.createElement ('td');
+    idCell.classList.add('task-no'); 
+    idCell.textContent = index + 1;
+
+    const dataCell = document.createElement('td');
+    dataCell.textContent = task.date;
+
+    const timeCell = document.createElement('td');
+    timeCell.textContent = task.time;
+
+    const taskCell = document.createElement('td');
+    taskCell.textContent = task.text;
+    const statusCell = document.createElement('td');
+    const  statusButton = document.createElement('button');
+    statusButton.textContent = task.status === 'Completed' ? '✔️' : '⏳';
+    statusButton.addEventListener("click", () => {
+        statusButton.textContent = "✔️";
+
+        statusButton.disabled = true;
+        
+
+
+        const taskList = JSON.parse(localStorage.getItem('taskList')) || [];
+        if (taskList[index]) {
+          taskList[index].status = "Completed";
+          localStorage.setItem('taskList', JSON.stringify(taskList));
+        }
+        localStorage.setItem('taskList', JSON.stringify(taskList));
+        });
+         statusCell.appendChild(statusButton);
+
+    row.appendChild(idCell);
+    row.appendChild(dataCell);
+    row.appendChild(timeCell);
+    row.appendChild(taskCell);
+    row.appendChild(statusCell);
+
+    tableBody.appendChild(row);
+    tableBody.lastElementChild.scrollIntoView({ behavior: "smooth" });
+}
+    </script>
+</body>
+</html>
